@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 20px; color: #333;
+        }
+        .card {
+            background: #fff; border-radius: 16px; padding: 32px;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center;
+        }
+        h1 { font-size: 1.5rem; margin-bottom: 24px; color: #4f46e5; }
+        .field { margin-bottom: 16px; text-align: left; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #555; }
+        input {
+            width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0;
+            border-radius: 10px; font-size: 1rem; outline: none; transition: border 0.2s;
+        }
+        input:focus { border-color: #4f46e5; }
+        button {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 8px;
+        }
+        .btn-gen { background: #4f46e5; color: #fff; }
+        .btn-dl { background: #10b981; color: #fff; margin-top: 16px; display: none; }
+        #result { display: none; margin-top: 24px; padding-top: 20px; border-top: 2px dashed #eee; }
+        .number { font-size: 3.5rem; font-weight: 900; color: #4f46e5; line-height: 1.1; }
+        .info { font-size: 0.9rem; color: #777; margin: 4px 0; }
+        .error { color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🎲 Lucky Number</h1>
+        <div class="field">
+            <label>Your Name</label>
+            <input type="text" id="nameInput" placeholder="Jane Doe" autocomplete="off">
+        </div>
+        <div class="field">
+            <label>Date</label>
+            <input type="date" id="dateInput">
+        </div>
+        <div class="error" id="errorMsg"></div>
+        <button class="btn-gen" onclick="generate()">Generate Number</button>
+
+        <div id="result">
+            <p class="info">Generated for</p>
+            <p class="info" style="font-weight:700;color:#333;font-size:1.1rem;" id="resName"></p>
+            <p class="info" id="resDate"></p>
+            <div class="number" id="resNum"></div>
+            <button class="btn-dl" id="dlBtn" onclick="downloadPDF()">Download PDF</button>
+        </div>
+    </div>
+
+<script>
+// Set default date
+document.getElementById('dateInput').valueAsDate = new Date();
+
+var currentData = {};
+
+function generate() {
+    var name = document.getElementById('nameInput').value.trim();
+    var date = document.getElementById('dateInput').value;
+    var err = document.getElementById('errorMsg');
+
+    if (!name || !date) {
+        err.textContent = 'Please enter both name and date.';
+        err.style.display = 'block';
+        return;
+    }
+    err.style.display = 'none';
+
+    var num = Math.floor(Math.random() * 9999) + 1;
+    var formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    currentData = { name: name, date: formattedDate, number: num };
+
+    document.getElementById('resName').textContent = name;
+    document.getElementById('resDate').textContent = formattedDate;
+    document.getElementById('resNum').textContent = num.toLocaleString();
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('dlBtn').style.display = 'inline-block';
+}
+
+/* =============================================
+   PURE JS PDF GENERATOR - NO LIBRARIES NEEDED
+   Builds a valid PDF 1.4 binary from scratch
+   ============================================= */
+function downloadPDF() {
+    var d = currentData;
+    if (!d.name) return;
+
+    // Sanitize strings for PDF (escape parentheses and backslashes)
+    function esc(s) {
+        return String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+    }
+
+    var lines = [
+        { text: 'LUCKY NUMBER CERTIFICATE', size: 22, y: 720 },
+        { text: '------------------------------------', size: 12, y: 690 },
+        { text: 'Generated for:', size: 12, y: 640 },
+        { text: esc(d.name), size: 18, y: 615 },
+        { text: 'Date: ' + esc(d.date), size: 12, y: 575 },
+        { text: 'Assigned Random Number:', size: 12, y: 530 },
+        { text: String(d.number), size: 48, y: 470 },
+        { text: '------------------------------------', size: 12, y: 410 },
+        { text: 'Generated by Lucky Number App', size: 9, y: 380 }
+    ];
+
+    // Build PDF content stream
+    var stream = 'BT\n/F1 12 Tf\n';
+    for (var i = 0; i < lines.length; i++) {
+        stream += '/F1 ' + lines[i].size + ' Tf\n';
+        stream += '50 ' + lines[i].y + ' Td\n';
+        stream += '(' + lines[i].text + ') Tj\n';
+        // Reset position for next absolute positioning
+        stream += '0 -' + lines[i].y + ' Td\n';
+    }
+    stream += 'ET';
+
+    // Construct raw PDF objects
+    var objects = [];
+    var xrefOffsets = [];
+    var pdf = '%PDF-1.4\n';
+
+    // Obj 1: Catalog
+    xrefOffsets.push(pdf.length);
+    pdf += '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n';
+
+    // Obj 2: Pages
+    xrefOffsets.push(pdf.length);
+    pdf += '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n';
+
+    // Obj 3: Page
+    xrefOffsets.push(pdf.length);
+    pdf += '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n';
+
+    // Obj 4: Content Stream
+    xrefOffsets.push(pdf.length);
+    pdf += '4 0 obj\n<< /Length ' + stream.length + ' >>\nstream\n' + stream + '\nendstream\nendobj\n';
+
+    // Obj 5: Font (Helvetica - built into every PDF reader)
+    xrefOffsets.push(pdf.length);
+    pdf += '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n';
+
+    // Cross-reference table
+    var xrefOffset = pdf.length;
+    pdf += 'xref\n0 ' + (objects.length + 6) + '\n';
+    pdf += '0000000000 65535 f \n';
+    for (var j = 0; j < xrefOffsets.length; j++) {
+        var offset = String(xrefOffsets[j]);
+        while (offset.length < 10) offset = '0' + offset;
+        pdf += offset + ' 00000 n \n';
+    }
+
+    pdf += 'trailer\n<< /Size ' + (xrefOffsets.length + 1) + ' /Root 1 0 R >>\n';
+    pdf += 'startxref\n' + xrefOffset + '\n%%EOF';
+
+    // Trigger download via data URI (most compatible with restricted webviews)
+    var fileName = 'Lucky_Number_' + d.name.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf';
+
+    try {
+        // Method 1: Blob download (works in most modern webviews)
+        var blob = new Blob([pdf], { type: 'application/pdf' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    } catch (e) {
+        // Method 2: Data URI fallback for heavily restricted environments
+        try {
+            var dataUri = 'data:application/pdf;base64,' + btoa(pdf);
+            var a2 = document.createElement('a');
+            a2.href = dataUri;
+            a2.download = fileName;
+            document.body.appendChild(a2);
+            a2.click();
+            document.body.removeChild(a2);
+        } catch (e2) {
+            // Method 3: Last resort - open in new tab
+            window.open('data:application/pdf;base64,' + btoa(pdf), '_blank');
+        }
+    }
+}
+</script>
+</body>
+</html>
