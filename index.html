@@ -5,54 +5,104 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Information Form</title>
   <style>
+    /* 1. Global box-sizing prevents padding from breaking widths */
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: #f0f2f5;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
+      padding: 16px;
+      line-height: 1.5;
+      color: #333;
     }
+
     .form-container {
       background: #ffffff;
-      padding: 30px 40px;
+      padding: 24px; /* Balanced padding for mobile and desktop */
       border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
+      text-align: left; /* Keeps labels and inputs perfectly aligned */
+    }
+
+    h2 { 
       text-align: center;
+      color: #1a1a1a; 
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 22px;
     }
-    h2 { color: #333; margin-bottom: 20px; }
+
     label { 
-      display: block; margin-top: 15px; font-weight: 600; color: #555; font-size: 14px; text-align: left;
+      display: block; 
+      margin-top: 16px; 
+      font-weight: 600; 
+      color: #4a4a4a;
+      font-size: 14px;
+      margin-bottom: 6px;
     }
+
+    /* 2. Font-size 16px prevents iOS from auto-zooming and breaking layout */
     input[type="text"],
     input[type="number"],
     input[type="tel"] {
-      width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px;
-      box-sizing: border-box; font-size: 14px; transition: border-color 0.3s;
+      width: 100%; 
+      padding: 10px 12px; 
+      border: 1px solid #d1d5db; 
+      border-radius: 6px;
+      font-size: 16px; 
+      transition: border-color 0.2s, box-shadow 0.2s;
+      color: #1a1a1a;
     }
+
     input[type="file"] {
-      width: 100%; padding: 8px; margin-top: 6px; border: 1px dashed #ccc; border-radius: 6px;
-      box-sizing: border-box; font-size: 13px; background: #fafafa; cursor: pointer;
-      transition: border-color 0.3s;
+      width: 100%; 
+      padding: 8px; 
+      border: 1px dashed #d1d5db; 
+      border-radius: 6px;
+      font-size: 14px; 
+      background: #f9fafb; 
+      cursor: pointer;
+      color: #4a4a4a;
     }
-    input:focus, input[type="file"]:focus { outline: none; border-color: #007bff; }
+
+    input:focus, input[type="file"]:focus { 
+      outline: none; 
+      border-color: #007bff; 
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    }
     
     .file-hint {
-      font-size: 11px; color: #888; text-align: left; margin-top: 4px; margin-bottom: 10px;
+      font-size: 12px; 
+      color: #6b7280; 
+      margin-top: 6px; 
+      margin-bottom: 0;
     }
 
     button {
-      width: 100%; margin-top: 25px; padding: 12px; background: #007bff; color: white;
-      border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;
-      transition: background 0.3s;
+      width: 100%; 
+      margin-top: 24px; 
+      padding: 12px; 
+      background: #007bff; 
+      color: white;
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-size: 16px; 
+      font-weight: 600;
+      transition: background 0.2s;
     }
+
     button:hover { background: #0056b3; }
-    button:disabled { background: #a0cfff; cursor: not-allowed; }
+    button:disabled { background: #93c5fd; cursor: not-allowed; }
 
     /* Success Message Styling */
     .success-message {
@@ -61,31 +111,68 @@
       align-items: center;
       justify-content: center;
       padding: 20px 0;
+      text-align: center;
     }
+
     .success-icon {
-      width: 80px; height: 80px; background: #d4edda; color: #28a745; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 40px;
-      margin-bottom: 15px; animation: popIn 0.5s ease;
+      width: 72px; 
+      height: 72px; 
+      background: #dcfce7; 
+      color: #16a34a; 
+      border-radius: 50%;
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 36px;
+      margin-bottom: 16px; 
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .success-message h3 { color: #28a745; margin: 0 0 10px 0; }
-    .success-message p { color: #666; margin: 0; font-size: 14px; }
-    .reset-btn { margin-top: 20px; background: #28a745; width: auto; padding: 10px 20px; }
-    .reset-btn:hover { background: #218838; }
+
+    .success-message h3 { 
+      color: #16a34a; 
+      margin: 0 0 8px 0; 
+      font-size: 20px;
+    }
+
+    .success-message p { 
+      color: #6b7280; 
+      margin: 0 0 20px 0; 
+      font-size: 14px; 
+      line-height: 1.5;
+    }
+
+    .reset-btn { 
+      margin-top: 0;
+      background: #16a34a; 
+      width: auto; 
+      padding: 10px 24px; 
+    }
+
+    .reset-btn:hover { background: #15803d; }
 
     @keyframes popIn {
-      0% { transform: scale(0); }
-      80% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
     
-    .error-message { color: #dc3545; font-size: 14px; margin-top: 10px; display: none; }
+    .error-message { 
+      color: #dc2626; 
+      font-size: 14px; 
+      margin-top: 16px; 
+      display: none; 
+      text-align: center;
+      background: #fef2f2;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #fecaca;
+    }
   </style>
 </head>
 <body>
 
   <div class="form-container">
     
-    <!-- REPLACE "YOUR_EMAIL@EXAMPLE.COM" WITH YOUR REAL EMAIL ADDRESS -->
+    <!-- ⚠️ REPLACE WITH YOUR REAL EMAIL ADDRESS BELOW -->
     <form id="customerForm" action="https://formsubmit.co/ajax/artificialinte@atomicmail.io" method="POST" enctype="multipart/form-data" onsubmit="event.preventDefault();">
       
       <!-- FormSubmit Configuration (Hidden) -->
@@ -116,7 +203,7 @@
     <div id="successMessage" class="success-message">
       <div class="success-icon">✓</div>
       <h3>Submitted Successfully!</h3>
-      <p>Thank you. We have received your information.</p>
+      <p>Thank you. We have received your information and file.</p>
       <button class="reset-btn" onclick="resetForm()">Submit Another</button>
     </div>
 
@@ -137,22 +224,17 @@
         submitBtn.disabled = true;
         errorMessage.style.display = "none";
 
-        // FormData automatically handles text inputs AND file uploads
         const formData = new FormData(form);
         
         try {
-          // Fetch sends the data to FormSubmit's AJAX endpoint
           const response = await fetch(form.action, {
             method: "POST",
             body: formData
-            // NOTE: We intentionally DO NOT set 'Content-Type' here. 
-            // The browser must set it automatically to handle the file boundary correctly.
           });
 
           const data = await response.json();
 
           if (response.ok && data.success) {
-            // Hide form, show success screen
             form.style.display = "none";
             successMessage.style.display = "flex";
           } else {
@@ -176,7 +258,7 @@
       const successMessage = document.getElementById("successMessage");
       const submitBtn = document.getElementById("submitBtn");
       
-      form.reset(); // Automatically clears the file input too
+      form.reset();
       successMessage.style.display = "none";
       form.style.display = "block";
       submitBtn.innerText = "Submit";
