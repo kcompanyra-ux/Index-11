@@ -21,9 +21,9 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 350px;
+      text-align: center;
     }
     h2 { 
-      text-align: center; 
       color: #333; 
       margin-bottom: 20px;
     }
@@ -33,6 +33,7 @@
       font-weight: 600; 
       color: #555;
       font-size: 14px;
+      text-align: left;
     }
     input {
       width: 100%;
@@ -64,15 +65,72 @@
     button:hover { 
       background: #0056b3; 
     }
+    button:disabled {
+      background: #a0cfff;
+      cursor: not-allowed;
+    }
+
+    /* Success Message Styling */
+    .success-message {
+      display: none; /* Hidden by default */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+    }
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: #d4edda;
+      color: #28a745;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin-bottom: 15px;
+      animation: popIn 0.5s ease;
+    }
+    .success-message h3 {
+      color: #28a745;
+      margin: 0 0 10px 0;
+    }
+    .success-message p {
+      color: #666;
+      margin: 0;
+      font-size: 14px;
+    }
+    .reset-btn {
+      margin-top: 20px;
+      background: #28a745;
+      width: auto;
+      padding: 10px 20px;
+    }
+    .reset-btn:hover {
+      background: #218838;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0); }
+      80% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .error-message {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
   <div class="form-container">
-    <h2>Customer Info</h2>
     
-    <!-- Your Formspree endpoint is integrated here -->
-    <form action="https://formspree.io/f/xyegqwoj" method="POST">
+    <!-- THE FORM -->
+    <form id="customerForm" action="https://formspree.io/f/xyegqwoj" method="POST">
+      <h2>Customer Info</h2>
       
       <label for="name">Full Name</label>
       <input type="text" id="name" name="name" placeholder="John Doe" required>
@@ -83,10 +141,77 @@
       <label for="number">Phone Number</label>
       <input type="tel" id="number" name="number" placeholder="+1 234 567 8900" required>
 
-      <button type="submit">Submit</button>
-      
+      <button type="submit" id="submitBtn">Submit</button>
+      <p id="errorMessage" class="error-message"></p>
     </form>
+
+    <!-- SUCCESS MESSAGE (Hidden initially) -->
+    <div id="successMessage" class="success-message">
+      <div class="success-icon">✓</div>
+      <h3>Submitted Successfully!</h3>
+      <p>Thank you. We have received your information.</p>
+      <button class="reset-btn" onclick="resetForm()">Submit Another</button>
+    </div>
+
   </div>
+
+  <script>
+    const form = document.getElementById("customerForm");
+    const successMessage = document.getElementById("successMessage");
+    const submitBtn = document.getElementById("submitBtn");
+    const errorMessage = document.getElementById("errorMessage");
+
+    form.addEventListener("submit", async function(event) {
+      // 1. Stop the default page redirect
+      event.preventDefault();
+      
+      // 2. Show loading state
+      submitBtn.innerText = "Sending...";
+      submitBtn.disabled = true;
+      errorMessage.style.display = "none";
+
+      // 3. Send data to Formspree in the background
+      const formData = new FormData(form);
+      
+      try {
+        const response = await fetch(form.action, {
+          method: form.method,
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          // 4. Hide form, show success screen
+          form.style.display = "none";
+          successMessage.style.display = "flex";
+        } else {
+          // Handle Formspree errors
+          const data = await response.json();
+          errorMessage.innerText = data.errors ? data.errors[0].message : "Oops! Something went wrong.";
+          errorMessage.style.display = "block";
+          submitBtn.innerText = "Submit";
+          submitBtn.disabled = false;
+        }
+      } catch (error) {
+        // Handle network errors
+        errorMessage.innerText = "Network error. Please try again.";
+        errorMessage.style.display = "block";
+        submitBtn.innerText = "Submit";
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Function to reset the form if the user wants to submit again
+    function resetForm() {
+      form.reset();
+      successMessage.style.display = "none";
+      form.style.display = "block";
+      submitBtn.innerText = "Submit";
+      submitBtn.disabled = false;
+    }
+  </script>
 
 </body>
 </html>
