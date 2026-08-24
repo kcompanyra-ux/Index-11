@@ -85,8 +85,101 @@
 
   <div class="form-container">
     
-    <!-- THE FORM -->
-    <form id="customerForm" action="https://formspree.io/f/xyegqwoj" method="POST" enctype="multipart/form-data" onsubmit="event.preventDefault();">
+    <!-- REPLACE "YOUR_EMAIL@EXAMPLE.COM" WITH YOUR REAL EMAIL ADDRESS -->
+    <form id="customerForm" action="https://formsubmit.co/ajax/<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Information Form</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .form-container {
+      background: #ffffff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+    h2 { color: #333; margin-bottom: 20px; }
+    label { 
+      display: block; margin-top: 15px; font-weight: 600; color: #555; font-size: 14px; text-align: left;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"] {
+      width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px;
+      box-sizing: border-box; font-size: 14px; transition: border-color 0.3s;
+    }
+    input[type="file"] {
+      width: 100%; padding: 8px; margin-top: 6px; border: 1px dashed #ccc; border-radius: 6px;
+      box-sizing: border-box; font-size: 13px; background: #fafafa; cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    input:focus, input[type="file"]:focus { outline: none; border-color: #007bff; }
+    
+    .file-hint {
+      font-size: 11px; color: #888; text-align: left; margin-top: 4px; margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%; margin-top: 25px; padding: 12px; background: #007bff; color: white;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;
+      transition: background 0.3s;
+    }
+    button:hover { background: #0056b3; }
+    button:disabled { background: #a0cfff; cursor: not-allowed; }
+
+    /* Success Message Styling */
+    .success-message {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+    }
+    .success-icon {
+      width: 80px; height: 80px; background: #d4edda; color: #28a745; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 40px;
+      margin-bottom: 15px; animation: popIn 0.5s ease;
+    }
+    .success-message h3 { color: #28a745; margin: 0 0 10px 0; }
+    .success-message p { color: #666; margin: 0; font-size: 14px; }
+    .reset-btn { margin-top: 20px; background: #28a745; width: auto; padding: 10px 20px; }
+    .reset-btn:hover { background: #218838; }
+
+    @keyframes popIn {
+      0% { transform: scale(0); }
+      80% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .error-message { color: #dc3545; font-size: 14px; margin-top: 10px; display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    
+    <!-- REPLACE "YOUR_EMAIL@EXAMPLE.COM" WITH YOUR REAL EMAIL ADDRESS -->
+    <form id="customerForm" action="https://formsubmit.co/ajax/YOUR_EMAIL@EXAMPLE.COM" method="POST" enctype="multipart/form-data" onsubmit="event.preventDefault();">
+      
+      <!-- FormSubmit Configuration (Hidden) -->
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+
       <h2>Customer Info</h2>
       
       <label for="name">Full Name</label>
@@ -98,10 +191,10 @@
       <label for="number">Phone Number</label>
       <input type="tel" id="number" name="number" placeholder="+1 234 567 8900" required>
 
-      <!-- NEW FILE UPLOAD FIELD -->
+      <!-- FILE UPLOAD FIELD -->
       <label for="attachment">Upload File (Optional)</label>
       <input type="file" id="attachment" name="attachment" accept="image/*,.pdf,.doc,.docx,.txt">
-      <div class="file-hint">Max size: 10MB. Formats: Images, PDF, Word, Text.</div>
+      <div class="file-hint">Max size: 25MB. Formats: Images, PDF, Word, Text.</div>
 
       <button type="submit" id="submitBtn">Submit</button>
       <p id="errorMessage" class="error-message"></p>
@@ -128,8 +221,6 @@
         event.preventDefault();
         event.stopPropagation();
         
-        console.log("Form submission intercepted successfully!");
-        
         submitBtn.innerText = "Sending...";
         submitBtn.disabled = true;
         errorMessage.style.display = "none";
@@ -138,24 +229,22 @@
         const formData = new FormData(form);
         
         try {
+          // Fetch sends the data to FormSubmit's AJAX endpoint
           const response = await fetch(form.action, {
             method: "POST",
-            body: formData, 
-            // Note: We intentionally DO NOT set 'Content-Type' here. 
-            // The browser automatically sets it to 'multipart/form-data' with the correct boundary for files.
-            headers: {
-              'Accept': 'application/json'
-            }
+            body: formData
+            // NOTE: We intentionally DO NOT set 'Content-Type' here. 
+            // The browser must set it automatically to handle the file boundary correctly.
           });
 
-          console.log("Formspree response status:", response.status);
+          const data = await response.json();
 
-          if (response.ok) {
+          if (response.ok && data.success) {
+            // Hide form, show success screen
             form.style.display = "none";
             successMessage.style.display = "flex";
           } else {
-            const data = await response.json().catch(() => ({}));
-            errorMessage.innerText = data.errors ? data.errors[0].message : "Oops! Something went wrong. (Status: " + response.status + ")";
+            errorMessage.innerText = data.message || "Oops! Something went wrong.";
             errorMessage.style.display = "block";
             submitBtn.innerText = "Submit";
             submitBtn.disabled = false;
@@ -175,7 +264,106 @@
       const successMessage = document.getElementById("successMessage");
       const submitBtn = document.getElementById("submitBtn");
       
-      form.reset(); // This automatically clears the file input too
+      form.reset(); // Automatically clears the file input too
+      successMessage.style.display = "none";
+      form.style.display = "block";
+      submitBtn.innerText = "Submit";
+      submitBtn.disabled = false;
+    }
+  </script>
+
+</body>
+</html> method="POST" enctype="multipart/form-data" onsubmit="event.preventDefault();">
+      
+      <!-- FormSubmit Configuration (Hidden) -->
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+
+      <h2>Customer Info</h2>
+      
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" placeholder="John Doe" required>
+
+      <label for="age">Age</label>
+      <input type="number" id="age" name="age" placeholder="25" min="1" max="120" required>
+
+      <label for="number">Phone Number</label>
+      <input type="tel" id="number" name="number" placeholder="+1 234 567 8900" required>
+
+      <!-- FILE UPLOAD FIELD -->
+      <label for="attachment">Upload File (Optional)</label>
+      <input type="file" id="attachment" name="attachment" accept="image/*,.pdf,.doc,.docx,.txt">
+      <div class="file-hint">Max size: 25MB. Formats: Images, PDF, Word, Text.</div>
+
+      <button type="submit" id="submitBtn">Submit</button>
+      <p id="errorMessage" class="error-message"></p>
+    </form>
+
+    <!-- SUCCESS MESSAGE (Hidden initially) -->
+    <div id="successMessage" class="success-message">
+      <div class="success-icon">✓</div>
+      <h3>Submitted Successfully!</h3>
+      <p>Thank you. We have received your information.</p>
+      <button class="reset-btn" onclick="resetForm()">Submit Another</button>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const form = document.getElementById("customerForm");
+      const successMessage = document.getElementById("successMessage");
+      const submitBtn = document.getElementById("submitBtn");
+      const errorMessage = document.getElementById("errorMessage");
+
+      form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        submitBtn.innerText = "Sending...";
+        submitBtn.disabled = true;
+        errorMessage.style.display = "none";
+
+        // FormData automatically handles text inputs AND file uploads
+        const formData = new FormData(form);
+        
+        try {
+          // Fetch sends the data to FormSubmit's AJAX endpoint
+          const response = await fetch(form.action, {
+            method: "POST",
+            body: formData
+            // NOTE: We intentionally DO NOT set 'Content-Type' here. 
+            // The browser must set it automatically to handle the file boundary correctly.
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            // Hide form, show success screen
+            form.style.display = "none";
+            successMessage.style.display = "flex";
+          } else {
+            errorMessage.innerText = data.message || "Oops! Something went wrong.";
+            errorMessage.style.display = "block";
+            submitBtn.innerText = "Submit";
+            submitBtn.disabled = false;
+          }
+        } catch (error) {
+          console.error("Network error:", error);
+          errorMessage.innerText = "Network error. Please check your internet connection.";
+          errorMessage.style.display = "block";
+          submitBtn.innerText = "Submit";
+          submitBtn.disabled = false;
+        }
+      });
+    });
+
+    function resetForm() {
+      const form = document.getElementById("customerForm");
+      const successMessage = document.getElementById("successMessage");
+      const submitBtn = document.getElementById("submitBtn");
+      
+      form.reset(); // Automatically clears the file input too
       successMessage.style.display = "none";
       form.style.display = "block";
       submitBtn.innerText = "Submit";
